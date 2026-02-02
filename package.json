@@ -1,19 +1,23 @@
 {
-    "name": "monosize/typo3-theme-openstreetmap-content",
     "version": "13.4.0",
     "description": "Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails",
     "type": "module",
-    "keywords": ["typo3", "theme", "openstreetmap", "osm", "leaflet", "map", "content"],
+    "keywords": [
+        "typo3",
+        "theme",
+        "openstreetmap",
+        "osm",
+        "leaflet",
+        "map",
+        "content"
+    ],
     "license": "proprietary",
     "peerDependencies": {
-        "monosize/typo3-build-system": "^13.4.0",
-        "monosize/typo3-frontend-library": "^13.4.62",
         "leaflet": "^1.9.0"
     },
     "peerDependenciesMeta": {
         "leaflet": {
-            "optional": false,
-            "comment": "Required for OpenStreetMap rendering"
+            "optional": false
         }
     },
     "files": [
