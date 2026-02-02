@@ -3,7 +3,7 @@
 	<f:layout name="Content"/>
 
 	<f:section name="Configuration">
-		<flux:form id="openstreetmap" label="OpenStreetMap Karte" description="Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails">
+		<flux:form id="openstreetmap" label="OpenStreetMap Karte" description="Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse">
 			<flux:form.option name="group" value="Content"/>
 			<flux:form.option name="icon" value="EXT:template/Resources/Public/Icons/Content/content-openstreetmap.svg"/>
 
@@ -29,20 +29,14 @@
 				<flux:field.input name="aspectRatio" label="Seitenverhältnis (z.B. 16-9, 4-3, 3-2)" default="16-9" placeholder="16-9"/>
 			</flux:form.sheet>
 
-			<!-- Firmendaten Sheet -->
-			<flux:form.sheet name="company" label="Firmendaten (Modal)">
-				<flux:field.input name="companyName" label="Firmenname" default=""/>
-				<flux:field.input name="contactPerson" label="Ansprechpartner" default=""/>
-				<flux:field.input name="phone" label="Telefon" default=""/>
-				<flux:field.input name="email" label="E-Mail" default=""/>
-				<flux:field.input name="website" label="Website" default=""/>
-				<flux:field.text name="openingHours" label="Öffnungszeiten" rows="5" default=""/>
-			</flux:form.sheet>
-
-			<!-- Modal-Optionen Sheet -->
-			<flux:form.sheet name="modal" label="Modal-Optionen">
-				<flux:field.checkbox name="showModal" label="Modal aktivieren" default="1"/>
-				<flux:field.input name="modalTriggerText" label="Button-Text" default="Kontaktdaten anzeigen"/>
+			<!-- Routen-Link Sheet -->
+			<flux:form.sheet name="route" label="Routen-Link">
+				<flux:field.checkbox name="showRouteLink" label="Routen-Link anzeigen" default="1"/>
+				<flux:field.select name="routeProvider" label="Routen-Anbieter" items="{
+					osm: 'OpenStreetMap',
+					google: 'Google Maps'
+				}" default="osm"/>
+				<flux:field.input name="routeLinkText" label="Link-Text" default="Route berechnen"/>
 			</flux:form.sheet>
 		</flux:form>
 	</f:section>
@@ -56,14 +50,13 @@
 		<f:if condition="{aspectRatio}">
 			<strong>Seitenverhältnis:</strong> {aspectRatio}<br/>
 		</f:if>
-		<f:if condition="{showModal}">
-			<strong>Modal:</strong> Ja
-		</f:if>
 	</f:section>
 
 	<f:section name="Main">
+		<!-- Leaflet CSS via CDN -->
+		<v:asset.style path="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" external="1"/>
+
 		<f:variable name="mapId" value="osm-map-{record.uid}"/>
-		<f:variable name="modalId" value="osm-modal-{record.uid}"/>
 
 		<!-- CSS for aspect-ratio and map container -->
 		<f:if condition="{aspectRatio}">
@@ -77,154 +70,67 @@
 		<div class="content-openstreet-map"
 			 data-osm-map-uid="{record.uid}"
 			 id="{mapId}"
-			 class="content-openstreet-map__container"
-				data-controller="openstreet-map"
-				data-openstreet-map-lat-value="{lat}"
-				data-openstreet-map-lng-value="{lng}"
-				data-openstreet-map-zoom-value="{zoom}"
-				data-openstreet-map-tile-layer-value="{tileLayer}">
+			 data-controller="openstreetmap-content"
+			 data-openstreetmap-content-lat-value="{lat}"
+			 data-openstreetmap-content-lng-value="{lng}"
+			 data-openstreetmap-content-zoom-value="{zoom}"
+			 data-openstreetmap-content-tile-layer-value="{tileLayer}">
 
 			<!-- Map Container -->
-			<div class="content-openstreet-map__map" data-openstreet-map-target="map"></div>
+			<div class="content-openstreet-map__map" data-openstreetmap-content-target="map"></div>
 
-			<!-- Center Overlay with Address -->
+			<!-- Left Overlay with Address -->
 			<div class="content-openstreet-map__overlay">
 				<div class="content-openstreet-map__address-card">
 					<f:if condition="{title}">
 						<h3 class="content-openstreet-map__title">{title}</h3>
 					</f:if>
+
 					<address class="content-openstreet-map__address">
 						{street}<br/>
 						{zip} {city}
 					</address>
 
-					<!-- Modal Trigger Button -->
-					<f:if condition="{showModal}">
-						<button type="button"
-								class="button button--primary content-openstreet-map__trigger"
-								data-action="click->openstreet-map#openModal"
-								data-openstreet-map-modal-id-value="{modalId}"
-								aria-haspopup="dialog"
-								aria-controls="{modalId}">
-							<f:if condition="{modalTriggerText}">
-								<f:then>{modalTriggerText}</f:then>
-								<f:else>Kontaktdaten anzeigen</f:else>
-							</f:if>
-						</button>
+					<!-- Route Link -->
+					<f:if condition="{showRouteLink}">
+						<f:if condition="{routeProvider} == 'osm'">
+							<f:then>
+								<a href="https://www.openstreetmap.org/directions?from=&to={street}, {zip} {city}" target="_blank" rel="noopener noreferrer" class="button button--primary content-openstreet-map__route-link">
+									<f:if condition="{routeLinkText}">
+										<f:then>{routeLinkText}</f:then>
+										<f:else>Route berechnen</f:else>
+									</f:if>
+								</a>
+							</f:then>
+						</f:if>
+						<f:if condition="{routeProvider} == 'google'">
+							<f:then>
+								<a href="https://www.google.com/maps/dir/?api=1&destination={street}, {zip} {city}" target="_blank" rel="noopener noreferrer" class="button button--primary content-openstreet-map__route-link">
+									<f:if condition="{routeLinkText}">
+										<f:then>{routeLinkText}</f:then>
+										<f:else>Route berechnen</f:else>
+									</f:if>
+								</a>
+							</f:then>
+						</f:if>
 					</f:if>
 				</div>
 			</div>
 
 			<!-- Loading Indicator -->
-			<div class="content-openstreet-map__loading" data-openstreet-map-target="loading" role="status" aria-live="polite" style="display: none;">
+			<div class="content-openstreet-map__loading" data-openstreetmap-content-target="loading" role="status" aria-live="polite" style="display: none;">
 				<div class="content-openstreet-map__loading-spinner" aria-hidden="true">⏳</div>
 				<p class="content-openstreet-map__loading-text">Karte wird geladen...</p>
 			</div>
 
 			<!-- Error Message -->
-			<div class="content-openstreet-map__error" data-openstreet-map-target="error" style="display: none;" role="alert" aria-live="assertive">
+			<div class="content-openstreet-map__error" data-openstreetmap-content-target="error" style="display: none;" role="alert" aria-live="assertive">
 				<div class="content-openstreet-map__error-icon" aria-hidden="true">⚠️</div>
 				<p class="content-openstreet-map__error-text">
 					Beim Laden der Karte ist ein Fehler aufgetreten.
 				</p>
 			</div>
 		</div>
-
-		<!-- Modal Dialog -->
-		<f:if condition="{showModal}">
-			<div id="{modalId}"
-				 class="content-openstreet-map__modal"
-				 role="dialog"
-				 aria-modal="true"
-				 aria-labelledby="{modalId}-title"
-					data-openstreet-map-target="modal"
-					data-controller="modal"
-					data-modal-open-class="content-openstreet-map__modal--open"
-					data-modal-allow-background-close="true">
-
-				<!-- Modal Backdrop -->
-				<div class="content-openstreet-map__modal-backdrop" data-modal-target="backdrop" data-action="click->modal#close"></div>
-
-				<!-- Modal Content -->
-				<div class="content-openstreet-map__modal-dialog" role="document">
-					<div class="content-openstreet-map__modal-content">
-
-						<!-- Modal Header -->
-						<header class="content-openstreet-map__modal-header">
-							<h2 id="{modalId}-title" class="content-openstreet-map__modal-title">
-								<f:if condition="{companyName}">
-									<f:then>{companyName}</f:then>
-									<f:else>Kontaktdaten</f:else>
-								</f:if>
-							</h2>
-							<button type="button"
-									class="content-openstreet-map__modal-close"
-									data-action="click->modal#close"
-									aria-label="Schliessen">
-								<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-									<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-								</svg>
-							</button>
-						</header>
-
-						<!-- Modal Body -->
-						<div class="content-openstreet-map__modal-body">
-							<f:if condition="{title}">
-								<h3 class="content-openstreet-map__company-title">{title}</h3>
-							</f:if>
-
-							<address class="content-openstreet-map__company-address">
-								{street}<br/>
-								{zip} {city}
-							</address>
-
-							<f:if condition="{contactPerson}">
-								<p class="content-openstreet-map__contact-person">
-									<strong>Ansprechpartner:</strong> {contactPerson}
-								</p>
-							</f:if>
-
-							<f:if condition="{phone}">
-								<p class="content-openstreet-map__phone">
-									<strong>Telefon:</strong>
-									<a href="tel:{phone -> f:format.htmlspecialchars()}" class="content-openstreet-map__link">{phone}</a>
-								</p>
-							</f:if>
-
-							<f:if condition="{email}">
-								<p class="content-openstreet-map__email">
-									<strong>E-Mail:</strong>
-									<a href="mailto:{email -> f:format.htmlspecialchars()}" class="content-openstreet-map__link">{email}</a>
-								</p>
-							</f:if>
-
-							<f:if condition="{website}">
-								<p class="content-openstreet-map__website">
-									<strong>Website:</strong>
-									<a href="{website}" target="_blank" rel="noopener noreferrer" class="content-openstreet-map__link">{website}</a>
-								</p>
-							</f:if>
-
-							<f:if condition="{openingHours}">
-								<div class="content-openstreet-map__opening-hours">
-									<h4>Öffnungszeiten:</h4>
-									<f:format.html>{openingHours}</f:format.html>
-								</div>
-							</f:if>
-						</div>
-
-						<!-- Modal Footer (Optional) -->
-						<footer class="content-openstreet-map__modal-footer">
-							<button type="button"
-									class="button button--secondary"
-									data-action="click->modal#close">
-								Schliessen
-							</button>
-						</footer>
-					</div>
-				</div>
-			</div>
-		</f:if>
 
 		<!-- WCAG 1.1.1 (Non-text Content) Level A - Address always visible as text alternative -->
 		<div class="visually-hidden" aria-hidden="true">

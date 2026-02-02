@@ -6,19 +6,19 @@
  * Zeigt eine Adresse an und unterstützt verschiedene Tile-Layer
  *
  * @example Basic Usage
- * <div data-controller="openstreet-map"
- *      data-openstreet-map-lat-value="51.505"
- *      data-openstreet-map-lng-value="-0.09"
- *      data-openstreet-map-zoom-value="13">
- *   <div data-openstreet-map-target="map"></div>
+ * <div data-controller="openstreetmap-content"
+ *      data-openstreetmap-content-lat-value="51.505"
+ *      data-openstreetmap-content-lng-value="-0.09"
+ *      data-openstreetmap-content-zoom-value="13">
+ *   <div data-openstreetmap-content-target="map"></div>
  * </div>
  *
  * @example Custom Tile Layer
- * <div data-controller="openstreet-map"
- *      data-openstreet-map-lat-value="51.505"
- *      data-openstreet-map-lng-value="-0.09"
- *      data-openstreet-map-tile-layer-value="osm_de">
- *   <div data-openstreet-map-target="map"></div>
+ * <div data-controller="openstreetmap-content"
+ *      data-openstreetmap-content-lat-value="51.505"
+ *      data-openstreetmap-content-lng-value="-0.09"
+ *      data-openstreetmap-content-tile-layer-value="osm_de">
+ *   <div data-openstreetmap-content-target="map"></div>
  * </div>
  */
 import { Controller } from "@hotwired/stimulus"
@@ -49,13 +49,12 @@ const TILE_LAYERS = {
 }
 
 export default class extends Controller {
-	static targets = ["map", "loading", "error", "modal"]
+	static targets = ["map", "loading", "error"]
 	static values = {
 		lat: { type: String, default: "51.505" },
 		lng: { type: String, default: "-0.09" },
 		zoom: { type: Number, default: 15 },
-		tileLayer: { type: String, default: "osm" },
-		modalId: String
+		tileLayer: { type: String, default: "osm" }
 	}
 
 	connect() {
@@ -105,8 +104,28 @@ export default class extends Controller {
 				maxZoom: tileConfig.maxZoom
 			}).addTo(this.mapInstance)
 
+			// Custom Marker mit inline SVG (zuverlässiger als Bilder)
+			const markerIcon = L.divIcon({
+				className: 'content-openstreet-map__marker',
+				html: `<div class="content-openstreet-map__marker-inner" role="img" aria-label="Standort"><svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 20 32" xmlns="http://www.w3.org/2000/svg" fill="#7a242f"><g transform="matrix(.335332 0 0 .373207 -6.94762 -2.27399)"><path d="m20.719 6.093h59.391v85.504h-59.391z" fill="none"/><path d="m69.122 51.098c3.665-4.35 5.878-9.964 5.878-16.098 0-13.807-11.193-25-25-25s-25 11.193-25 25c0 6.134 2.213 11.748 5.878 16.098l19.122 23.902zm-19.122-23.931c4.326 0 7.834 3.507 7.834 7.833s-3.508 7.833-7.834 7.833-7.834-3.507-7.834-7.833 3.508-7.833 7.834-7.833z" fill-rule="nonzero" transform="matrix(1.17614 0 0 1.05678 -8.39304 9.57735)"/></g></svg></div>`,
+				iconSize: [40, 80],
+				iconAnchor: [20, 72.5],
+				popupAnchor: [0, -72.5]
+			})
+
 			// Marker hinzufügen
-			this.markerInstance = L.marker([lat, lng]).addTo(this.mapInstance)
+			this.markerInstance = L.marker([lat, lng], { icon: markerIcon }).addTo(this.mapInstance)
+
+			// Marker bei 75% horizontal positionieren (nicht zentriert)
+			// Karte nach LINKS verschieben, damit Marker nach RECHTS wandert
+			setTimeout(() => {
+				const mapSize = this.mapInstance.getSize()
+				const targetX = mapSize.x * 0.66 // 66% von links
+				const currentX = mapSize.x * 0.5 // Marker ist aktuell zentriert (50%)
+				const diffX = currentX - targetX // Negativ = nach links verschieben
+
+				this.mapInstance.panBy([diffX, 0], { animate: false })
+			}, 100)
 
 			// Loading ausblenden
 			if (this.hasLoadingTarget) {
@@ -116,32 +135,6 @@ export default class extends Controller {
 		} catch (error) {
 			console.error('OpenStreetMap initialization error:', error)
 			this.showError('Fehler beim Initialisieren der Karte')
-		}
-	}
-
-	openModal() {
-		if (!this.modalIdValue) return
-
-		const modal = document.getElementById(this.modalIdValue)
-		if (modal) {
-			modal.classList.add('content-openstreet-map__modal--open')
-			modal.setAttribute('aria-hidden', 'false')
-
-			// Focus trap zum ersten interaktiven Element
-			const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
-			if (firstFocusable) {
-				setTimeout(() => firstFocusable.focus(), 100)
-			}
-		}
-	}
-
-	closeModal() {
-		if (!this.modalIdValue) return
-
-		const modal = document.getElementById(this.modalIdValue)
-		if (modal) {
-			modal.classList.remove('content-openstreet-map__modal--open')
-			modal.setAttribute('aria-hidden', 'true')
 		}
 	}
 
