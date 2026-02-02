@@ -1,0 +1,25 @@
+{
+    "name": "monosize/typo3-theme-openstreetmap-content",
+    "type": "typo3-theme",
+    "description": "Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails",
+    "keywords": ["typo3", "theme", "openstreetmap-content", "content", "animation"],
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Monosize",
+            "email": "info@monosize.de"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "typo3/cms-core": "^13.0",
+        "composer/installers": "^2.0"
+    },
+    "suggest": {
+        "monosize/typo3-build-system": "Build system for processing theme assets",
+        "monosize/typo3-frontend-library": "Frontend library with base controllers and GSAP"
+    },
+    "extra": {
+        "installer-name": "OpenstreetmapContent"
+    }
+}

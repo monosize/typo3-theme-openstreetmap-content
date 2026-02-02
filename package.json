@@ -1,0 +1,31 @@
+{
+    "name": "monosize/typo3-theme-openstreetmap-content",
+    "version": "13.4.0",
+    "description": "Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails",
+    "type": "module",
+    "keywords": ["typo3", "theme", "openstreetmap-content", "content", "animation"],
+    "license": "proprietary",
+    "peerDependencies": {
+        "monosize/typo3-build-system": "^13.4.0",
+        "monosize/typo3-frontend-library": "^13.4.62"
+    },
+    "files": [
+        "FluidTemplates/",
+        "Icons/",
+        "Scss/",
+        "Js/",
+        "config.yaml",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/monosize/typo3-theme-openstreetmap-content.git"
+    },
+    "bugs": {
+        "url": "https://github.com/monosize/typo3-theme-openstreetmap-content/issues"
+    },
+    "homepage": "https://github.com/monosize/typo3-theme-openstreetmap-content#readme"
+}

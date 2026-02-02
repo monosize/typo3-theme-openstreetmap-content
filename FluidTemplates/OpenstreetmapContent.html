@@ -1,0 +1,102 @@
+{namespace flux=FluidTYPO3\Flux\ViewHelpers}
+{namespace v=FluidTYPO3\Vhs\ViewHelpers}
+
+<f:layout name="Default"/>
+
+<f:section name="Configuration">
+    <flux:form id="openstreetmap-content"
+               label="OpenStreetMap Content"
+               icon="content-openstreetmap-content"
+               description="Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails">
+
+        <flux:form.option name="group" value="monosize"/>
+
+        <!-- Content Sheet -->
+        <flux:form.sheet name="content" label="Content">
+            <flux:field.text name="settings.content"
+                             label="Content"
+                             required="true"
+                             rows="5"
+                             placeholder="Enter your content here..."/>
+        </flux:form.sheet>
+
+        <!-- Appearance Sheet -->
+        <flux:form.sheet name="appearance" label="Appearance">
+            <flux:field.select name="settings.variant"
+                               label="Variant"
+                               items="{0: {0: 'Default', 1: 'default'}, 1: {0: 'Highlight', 1: 'highlight'}, 2: {0: 'Minimal', 1: 'minimal'}}"
+                               default="default"/>
+        </flux:form.sheet>
+
+        <!-- Animation Sheet -->
+        <flux:form.sheet name="animation" label="Animation">
+            <flux:field.checkbox name="settings.animationEnabled"
+                                 label="Enable Animation"
+                                 default="1"/>
+
+            <flux:field.input name="settings.animationDuration"
+                              label="Animation Duration (seconds)"
+                              default="0.5"
+                              placeholder="0.5"/>
+        </flux:form.sheet>
+
+        <!-- Styling Sheet -->
+        <flux:form.sheet name="styling" label="Styling">
+            <flux:field.input name="settings.customClass"
+                              label="Custom CSS Class"
+                              placeholder="my-custom-class"/>
+        </flux:form.sheet>
+
+        <!-- Accessibility Sheet -->
+        <flux:form.sheet name="accessibility" label="Accessibility">
+            <flux:field.input name="settings.ariaLabel"
+                              label="ARIA Label"
+                              placeholder="Optional accessible label"/>
+        </flux:form.sheet>
+
+    </flux:form>
+</f:section>
+
+<f:section name="Preview">
+    <div class="content-openstreetmap-content-preview" style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
+        <strong>OpenStreetMap Content</strong>
+        <f:if condition="{settings.content}">
+            <p style="margin: 0.5rem 0 0; color: #666; font-size: 0.875rem;">
+                <f:format.crop maxCharacters="100">{settings.content}</f:format.crop>
+            </p>
+        </f:if>
+        <f:if condition="{settings.variant} != 'default'">
+            <small style="color: #999;">Variant: {settings.variant}</small>
+        </f:if>
+    </div>
+</f:section>
+
+<f:section name="Main">
+    <f:comment><!-- Build CSS classes --></f:comment>
+    <v:variable.set name="cssClasses" value="content-openstreetmap-content"/>
+    <f:if condition="{settings.variant} && {settings.variant} != 'default'">
+        <v:variable.set name="cssClasses" value="{cssClasses} content-openstreetmap-content--{settings.variant}"/>
+    </f:if>
+    <f:if condition="{settings.customClass}">
+        <v:variable.set name="cssClasses" value="{cssClasses} {settings.customClass}"/>
+    </f:if>
+
+    <f:comment><!-- Build data attributes for Stimulus controller (if using own controller) --></f:comment>
+    <v:variable.set name="dataAttrs" value=""/>
+    <f:if condition="{settings.animationEnabled}">
+        <v:variable.set name="dataAttrs" value="data-controller=\"openstreetmap-content\" data-openstreetmap-content-duration-value=\"{settings.animationDuration}\""/>
+    </f:if>
+
+    <f:comment><!-- Main Output --></f:comment>
+    <div class="{cssClasses}"
+         {dataAttrs -> f:format.raw()}
+         <f:if condition="{settings.ariaLabel}">aria-label="{settings.ariaLabel}"</f:if>>
+
+        <f:if condition="{settings.content}">
+            <div class="content-openstreetmap-content__content">
+                {settings.content}
+            </div>
+        </f:if>
+
+    </div>
+</f:section>

@@ -1,0 +1,103 @@
+# OpenstreetmapContent Theme Configuration
+meta:
+  name: "OpenStreetMap Content"
+  description: "Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails"
+  version: "13.4.0"
+  author: "monosize.de"
+  type: "content"
+  contentType: "openstreetmap-content"
+  tags:
+    - "content"
+    - "openstreetmap-content"
+    - "animation"
+
+# Slot-Konfigurationen (für Content Themes meist leer)
+slots:
+  content:
+    enabled: true
+    template: "OpenstreetmapContent"
+    section: "content"
+    conditions:
+      enabledFor:
+        - "all"
+
+# Content Theme Komponenten
+components:
+  # Fluid Templates
+  templates:
+    Content:
+      - "OpenstreetmapContent.html"
+
+  # SCSS Styles
+  scss:
+    - "_openstreetmap-content.scss"
+
+  # Stimulus Controllers (optional - auskommentieren wenn nicht benötigt)
+  # Controller werden automatisch vom Build-System erkannt und geladen
+  # controllers:
+  #   - "openstreetmap-content_controller.js"
+
+  # Icons (Theme-spezifische Icons)
+  icons:
+    sources:
+      - "openstreetmap-content.svg"
+    target_prefix: "content-"
+    copy_to_global: true
+
+# FlexForm-Integration für Backend-Konfiguration
+configuration:
+  sheets:
+    OpenstreetmapContent:
+      label: "OpenStreetMap Content Settings"
+      description: "Configure OpenStreetMap Content content element"
+
+  OpenstreetmapContent:
+    # === Content Tab ===
+    content:
+      type: textarea
+      label: Content
+      description: The main content for this element
+      required: true
+      default: ""
+      rows: 5
+
+    # === Appearance Tab ===
+    variant:
+      type: select
+      label: Variant
+      description: Visual variant of the element
+      default: "default"
+      options:
+        default: "Default"
+        highlight: "Highlight"
+        minimal: "Minimal"
+
+    # === Animation Tab ===
+    animationEnabled:
+      type: checkbox
+      label: Enable Animation
+      description: Enable scroll-based animation
+      default: true
+
+    animationDuration:
+      type: input
+      label: Animation Duration
+      description: Duration in seconds
+      default: "0.5"
+      placeholder: "0.5"
+
+    # === Styling Tab ===
+    customClass:
+      type: input
+      label: Custom CSS Class
+      description: Additional CSS class for styling
+      default: ""
+      placeholder: "my-custom-class"
+
+    # === Accessibility Tab ===
+    ariaLabel:
+      type: input
+      label: ARIA Label
+      description: Accessible label for screen readers (optional)
+      default: ""
+      placeholder: "Leave empty to use content"

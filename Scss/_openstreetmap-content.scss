@@ -1,0 +1,60 @@
+// _openstreetmap-content.scss
+// Content Element Styles for OpenStreetMap Content
+// Generated: 2026
+
+// Content Element Container
+.content-openstreetmap-content {
+  // Base styles
+  display: block;
+  margin-block: var(--space-m, 1.5rem);
+
+  // Content wrapper
+  &__content {
+    // Add your content styles here
+  }
+}
+
+// Variant: Highlight
+.content-openstreetmap-content--highlight {
+  background: var(--template-bg-light, #f5f5f5);
+  padding: var(--space-m, 1.5rem);
+  border-radius: var(--border-radius, 4px);
+}
+
+// Variant: Minimal
+.content-openstreetmap-content--minimal {
+  margin-block: var(--space-s, 1rem);
+}
+
+// Animation states (if using Stimulus controller)
+.content-openstreetmap-content[data-controller="openstreetmap-content"] {
+  // Initial state before animation
+  opacity: 1;
+  transition: opacity 0.3s ease;
+
+  &.is-animating {
+    // State during animation
+  }
+
+  &.is-animated {
+    // State after animation complete
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .content-openstreetmap-content {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// Backend Preview Styles (only in TYPO3 Backend)
+.typo3-backend {
+  .content-openstreetmap-content-preview {
+    padding: 0.5rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+}
