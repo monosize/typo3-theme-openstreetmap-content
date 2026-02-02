@@ -5,11 +5,14 @@ meta:
   version: "13.4.0"
   author: "monosize.de"
   type: "content"
-  contentType: "openstreetmap-content"
+  contentType: "openstreetmap"
   tags:
+    - "map"
+    - "openstreetmap"
+    - "osm"
+    - "leaflet"
+    - "location"
     - "content"
-    - "openstreetmap-content"
-    - "animation"
 
 # Slot-Konfigurationen (für Content Themes meist leer)
 slots:
@@ -32,10 +35,9 @@ components:
   scss:
     - "_openstreetmap-content.scss"
 
-  # Stimulus Controllers (optional - auskommentieren wenn nicht benötigt)
-  # Controller werden automatisch vom Build-System erkannt und geladen
-  # controllers:
-  #   - "openstreetmap-content_controller.js"
+  # Stimulus Controllers
+  controllers:
+    - "openstreetmap-content_controller.js"
 
   # Icons (Theme-spezifische Icons)
   icons:
@@ -44,60 +46,8 @@ components:
     target_prefix: "content-"
     copy_to_global: true
 
-# FlexForm-Integration für Backend-Konfiguration
-configuration:
-  sheets:
-    OpenstreetmapContent:
-      label: "OpenStreetMap Content Settings"
-      description: "Configure OpenStreetMap Content content element"
-
-  OpenstreetmapContent:
-    # === Content Tab ===
-    content:
-      type: textarea
-      label: Content
-      description: The main content for this element
-      required: true
-      default: ""
-      rows: 5
-
-    # === Appearance Tab ===
-    variant:
-      type: select
-      label: Variant
-      description: Visual variant of the element
-      default: "default"
-      options:
-        default: "Default"
-        highlight: "Highlight"
-        minimal: "Minimal"
-
-    # === Animation Tab ===
-    animationEnabled:
-      type: checkbox
-      label: Enable Animation
-      description: Enable scroll-based animation
-      default: true
-
-    animationDuration:
-      type: input
-      label: Animation Duration
-      description: Duration in seconds
-      default: "0.5"
-      placeholder: "0.5"
-
-    # === Styling Tab ===
-    customClass:
-      type: input
-      label: Custom CSS Class
-      description: Additional CSS class for styling
-      default: ""
-      placeholder: "my-custom-class"
-
-    # === Accessibility Tab ===
-    ariaLabel:
-      type: input
-      label: ARIA Label
-      description: Accessible label for screen readers (optional)
-      default: ""
-      placeholder: "Leave empty to use content"
+# NPM Dependencies (werden beim add-global-theme installiert)
+# Diese Pakete stehen dem Build-System zur Verfügung
+dependencies:
+  # Leaflet.js für OpenStreetMap Rendering
+  leaflet: "^1.9.4"

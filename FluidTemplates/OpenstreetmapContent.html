@@ -1,102 +1,239 @@
-{namespace flux=FluidTYPO3\Flux\ViewHelpers}
-{namespace v=FluidTYPO3\Vhs\ViewHelpers}
+<div xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers" xmlns:flux="http://typo3.org/ns/FluidTYPO3/Flux/ViewHelpers" data-namespace-typo3-fluid="true">
 
-<f:layout name="Default"/>
+	<f:layout name="Content"/>
 
-<f:section name="Configuration">
-    <flux:form id="openstreetmap-content"
-               label="OpenStreetMap Content"
-               icon="content-openstreetmap-content"
-               description="Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails">
+	<f:section name="Configuration">
+		<flux:form id="openstreetmap" label="OpenStreetMap Karte" description="Interaktive OpenStreetMap-Karte zur Anzeige einer Firmenadresse mit Modal-Dialog für Firmendetails">
+			<flux:form.option name="group" value="Content"/>
+			<flux:form.option name="icon" value="EXT:template/Resources/Public/Icons/Content/content-openstreetmap.svg"/>
 
-        <flux:form.option name="group" value="monosize"/>
+			<!-- Konfiguration Sheet -->
+			<flux:form.sheet name="config" label="Konfiguration">
+				<flux:field.input name="title" label="Titel" required="1" default=""/>
+				<flux:field.input name="street" label="Strasse" required="1" default=""/>
+				<flux:field.input name="zip" label="PLZ" required="1" default=""/>
+				<flux:field.input name="city" label="Ort" required="1" default=""/>
+				<flux:field.input name="lat" label="Breitengrad (Latitude)" default=""/>
+				<flux:field.input name="lng" label="Längengrad (Longitude)" default=""/>
+				<flux:field.input name="zoom" label="Zoom-Level (1-19)" default="15" validate="integer"/>
+			</flux:form.sheet>
 
-        <!-- Content Sheet -->
-        <flux:form.sheet name="content" label="Content">
-            <flux:field.text name="settings.content"
-                             label="Content"
-                             required="true"
-                             rows="5"
-                             placeholder="Enter your content here..."/>
-        </flux:form.sheet>
+			<!-- Kartenstil Sheet -->
+			<flux:form.sheet name="mapstyle" label="Kartenstil">
+				<flux:field.select name="tileLayer" label="Karten-Anbieter" items="{
+					osm: 'OpenStreetMap Standard',
+					osm_de: 'OpenStreetMap Deutschland',
+					topo: 'OpenTopoMap',
+					cycle: 'OpenCycleMap'
+				}" default="osm"/>
+				<flux:field.input name="aspectRatio" label="Seitenverhältnis (z.B. 16-9, 4-3, 3-2)" default="16-9" placeholder="16-9"/>
+			</flux:form.sheet>
 
-        <!-- Appearance Sheet -->
-        <flux:form.sheet name="appearance" label="Appearance">
-            <flux:field.select name="settings.variant"
-                               label="Variant"
-                               items="{0: {0: 'Default', 1: 'default'}, 1: {0: 'Highlight', 1: 'highlight'}, 2: {0: 'Minimal', 1: 'minimal'}}"
-                               default="default"/>
-        </flux:form.sheet>
+			<!-- Firmendaten Sheet -->
+			<flux:form.sheet name="company" label="Firmendaten (Modal)">
+				<flux:field.input name="companyName" label="Firmenname" default=""/>
+				<flux:field.input name="contactPerson" label="Ansprechpartner" default=""/>
+				<flux:field.input name="phone" label="Telefon" default=""/>
+				<flux:field.input name="email" label="E-Mail" default=""/>
+				<flux:field.input name="website" label="Website" default=""/>
+				<flux:field.text name="openingHours" label="Öffnungszeiten" rows="5" default=""/>
+			</flux:form.sheet>
 
-        <!-- Animation Sheet -->
-        <flux:form.sheet name="animation" label="Animation">
-            <flux:field.checkbox name="settings.animationEnabled"
-                                 label="Enable Animation"
-                                 default="1"/>
+			<!-- Modal-Optionen Sheet -->
+			<flux:form.sheet name="modal" label="Modal-Optionen">
+				<flux:field.checkbox name="showModal" label="Modal aktivieren" default="1"/>
+				<flux:field.input name="modalTriggerText" label="Button-Text" default="Kontaktdaten anzeigen"/>
+			</flux:form.sheet>
+		</flux:form>
+	</f:section>
 
-            <flux:field.input name="settings.animationDuration"
-                              label="Animation Duration (seconds)"
-                              default="0.5"
-                              placeholder="0.5"/>
-        </flux:form.sheet>
+	<f:section name="Preview">
+		<strong>OpenStreetMap</strong><br/>
+		<f:if condition="{title}">
+			<strong>Titel:</strong> {title}<br/>
+		</f:if>
+		<strong>Adresse:</strong> {street}, {zip} {city}<br/>
+		<f:if condition="{aspectRatio}">
+			<strong>Seitenverhältnis:</strong> {aspectRatio}<br/>
+		</f:if>
+		<f:if condition="{showModal}">
+			<strong>Modal:</strong> Ja
+		</f:if>
+	</f:section>
 
-        <!-- Styling Sheet -->
-        <flux:form.sheet name="styling" label="Styling">
-            <flux:field.input name="settings.customClass"
-                              label="Custom CSS Class"
-                              placeholder="my-custom-class"/>
-        </flux:form.sheet>
+	<f:section name="Main">
+		<f:variable name="mapId" value="osm-map-{record.uid}"/>
+		<f:variable name="modalId" value="osm-modal-{record.uid}"/>
 
-        <!-- Accessibility Sheet -->
-        <flux:form.sheet name="accessibility" label="Accessibility">
-            <flux:field.input name="settings.ariaLabel"
-                              label="ARIA Label"
-                              placeholder="Optional accessible label"/>
-        </flux:form.sheet>
+		<!-- CSS for aspect-ratio and map container -->
+		<f:if condition="{aspectRatio}">
+			<style>
+				[data-osm-map-uid="<f:format.raw>{record.uid}</f:format.raw>"] {
+					aspect-ratio: <f:format.raw>{aspectRatio -> v:format.replace(substring: '-', replacement: '/')}</f:format.raw>;
+				}
+			</style>
+		</f:if>
 
-    </flux:form>
-</f:section>
+		<div class="content-openstreet-map"
+			 data-osm-map-uid="{record.uid}"
+			 id="{mapId}"
+			 class="content-openstreet-map__container"
+				data-controller="openstreet-map"
+				data-openstreet-map-lat-value="{lat}"
+				data-openstreet-map-lng-value="{lng}"
+				data-openstreet-map-zoom-value="{zoom}"
+				data-openstreet-map-tile-layer-value="{tileLayer}">
 
-<f:section name="Preview">
-    <div class="content-openstreetmap-content-preview" style="padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-        <strong>OpenStreetMap Content</strong>
-        <f:if condition="{settings.content}">
-            <p style="margin: 0.5rem 0 0; color: #666; font-size: 0.875rem;">
-                <f:format.crop maxCharacters="100">{settings.content}</f:format.crop>
-            </p>
-        </f:if>
-        <f:if condition="{settings.variant} != 'default'">
-            <small style="color: #999;">Variant: {settings.variant}</small>
-        </f:if>
-    </div>
-</f:section>
+			<!-- Map Container -->
+			<div class="content-openstreet-map__map" data-openstreet-map-target="map"></div>
 
-<f:section name="Main">
-    <f:comment><!-- Build CSS classes --></f:comment>
-    <v:variable.set name="cssClasses" value="content-openstreetmap-content"/>
-    <f:if condition="{settings.variant} && {settings.variant} != 'default'">
-        <v:variable.set name="cssClasses" value="{cssClasses} content-openstreetmap-content--{settings.variant}"/>
-    </f:if>
-    <f:if condition="{settings.customClass}">
-        <v:variable.set name="cssClasses" value="{cssClasses} {settings.customClass}"/>
-    </f:if>
+			<!-- Center Overlay with Address -->
+			<div class="content-openstreet-map__overlay">
+				<div class="content-openstreet-map__address-card">
+					<f:if condition="{title}">
+						<h3 class="content-openstreet-map__title">{title}</h3>
+					</f:if>
+					<address class="content-openstreet-map__address">
+						{street}<br/>
+						{zip} {city}
+					</address>
 
-    <f:comment><!-- Build data attributes for Stimulus controller (if using own controller) --></f:comment>
-    <v:variable.set name="dataAttrs" value=""/>
-    <f:if condition="{settings.animationEnabled}">
-        <v:variable.set name="dataAttrs" value="data-controller=\"openstreetmap-content\" data-openstreetmap-content-duration-value=\"{settings.animationDuration}\""/>
-    </f:if>
+					<!-- Modal Trigger Button -->
+					<f:if condition="{showModal}">
+						<button type="button"
+								class="button button--primary content-openstreet-map__trigger"
+								data-action="click->openstreet-map#openModal"
+								data-openstreet-map-modal-id-value="{modalId}"
+								aria-haspopup="dialog"
+								aria-controls="{modalId}">
+							<f:if condition="{modalTriggerText}">
+								<f:then>{modalTriggerText}</f:then>
+								<f:else>Kontaktdaten anzeigen</f:else>
+							</f:if>
+						</button>
+					</f:if>
+				</div>
+			</div>
 
-    <f:comment><!-- Main Output --></f:comment>
-    <div class="{cssClasses}"
-         {dataAttrs -> f:format.raw()}
-         <f:if condition="{settings.ariaLabel}">aria-label="{settings.ariaLabel}"</f:if>>
+			<!-- Loading Indicator -->
+			<div class="content-openstreet-map__loading" data-openstreet-map-target="loading" role="status" aria-live="polite" style="display: none;">
+				<div class="content-openstreet-map__loading-spinner" aria-hidden="true">⏳</div>
+				<p class="content-openstreet-map__loading-text">Karte wird geladen...</p>
+			</div>
 
-        <f:if condition="{settings.content}">
-            <div class="content-openstreetmap-content__content">
-                {settings.content}
-            </div>
-        </f:if>
+			<!-- Error Message -->
+			<div class="content-openstreet-map__error" data-openstreet-map-target="error" style="display: none;" role="alert" aria-live="assertive">
+				<div class="content-openstreet-map__error-icon" aria-hidden="true">⚠️</div>
+				<p class="content-openstreet-map__error-text">
+					Beim Laden der Karte ist ein Fehler aufgetreten.
+				</p>
+			</div>
+		</div>
 
-    </div>
-</f:section>
+		<!-- Modal Dialog -->
+		<f:if condition="{showModal}">
+			<div id="{modalId}"
+				 class="content-openstreet-map__modal"
+				 role="dialog"
+				 aria-modal="true"
+				 aria-labelledby="{modalId}-title"
+					data-openstreet-map-target="modal"
+					data-controller="modal"
+					data-modal-open-class="content-openstreet-map__modal--open"
+					data-modal-allow-background-close="true">
+
+				<!-- Modal Backdrop -->
+				<div class="content-openstreet-map__modal-backdrop" data-modal-target="backdrop" data-action="click->modal#close"></div>
+
+				<!-- Modal Content -->
+				<div class="content-openstreet-map__modal-dialog" role="document">
+					<div class="content-openstreet-map__modal-content">
+
+						<!-- Modal Header -->
+						<header class="content-openstreet-map__modal-header">
+							<h2 id="{modalId}-title" class="content-openstreet-map__modal-title">
+								<f:if condition="{companyName}">
+									<f:then>{companyName}</f:then>
+									<f:else>Kontaktdaten</f:else>
+								</f:if>
+							</h2>
+							<button type="button"
+									class="content-openstreet-map__modal-close"
+									data-action="click->modal#close"
+									aria-label="Schliessen">
+								<svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+									<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+								</svg>
+							</button>
+						</header>
+
+						<!-- Modal Body -->
+						<div class="content-openstreet-map__modal-body">
+							<f:if condition="{title}">
+								<h3 class="content-openstreet-map__company-title">{title}</h3>
+							</f:if>
+
+							<address class="content-openstreet-map__company-address">
+								{street}<br/>
+								{zip} {city}
+							</address>
+
+							<f:if condition="{contactPerson}">
+								<p class="content-openstreet-map__contact-person">
+									<strong>Ansprechpartner:</strong> {contactPerson}
+								</p>
+							</f:if>
+
+							<f:if condition="{phone}">
+								<p class="content-openstreet-map__phone">
+									<strong>Telefon:</strong>
+									<a href="tel:{phone -> f:format.htmlspecialchars()}" class="content-openstreet-map__link">{phone}</a>
+								</p>
+							</f:if>
+
+							<f:if condition="{email}">
+								<p class="content-openstreet-map__email">
+									<strong>E-Mail:</strong>
+									<a href="mailto:{email -> f:format.htmlspecialchars()}" class="content-openstreet-map__link">{email}</a>
+								</p>
+							</f:if>
+
+							<f:if condition="{website}">
+								<p class="content-openstreet-map__website">
+									<strong>Website:</strong>
+									<a href="{website}" target="_blank" rel="noopener noreferrer" class="content-openstreet-map__link">{website}</a>
+								</p>
+							</f:if>
+
+							<f:if condition="{openingHours}">
+								<div class="content-openstreet-map__opening-hours">
+									<h4>Öffnungszeiten:</h4>
+									<f:format.html>{openingHours}</f:format.html>
+								</div>
+							</f:if>
+						</div>
+
+						<!-- Modal Footer (Optional) -->
+						<footer class="content-openstreet-map__modal-footer">
+							<button type="button"
+									class="button button--secondary"
+									data-action="click->modal#close">
+								Schliessen
+							</button>
+						</footer>
+					</div>
+				</div>
+			</div>
+		</f:if>
+
+		<!-- WCAG 1.1.1 (Non-text Content) Level A - Address always visible as text alternative -->
+		<div class="visually-hidden" aria-hidden="true">
+			<f:if condition="{title}">
+				<h3>{title}</h3>
+			</f:if>
+			<address>
+				{street}, {zip} {city}
+			</address>
+		</div>
+	</f:section>
+</div>

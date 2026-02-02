@@ -1,10 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-  <!-- OpenStreetMap Content Icon -->
-  <!-- Replace with appropriate icon for your content element -->
-
-  <!-- Default: Content block icon -->
-  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke-opacity="0.5"/>
-  <line x1="7" y1="8" x2="17" y2="8"/>
-  <line x1="7" y1="12" x2="17" y2="12"/>
-  <line x1="7" y1="16" x2="13" y2="16"/>
+  <!-- Map Icon -->
+  <polygon points="1 6 1 22 8 18 16 6 1 6" stroke-opacity="0.8"/>
+  <line x1="8" y1="2" x2="8" y2="18" stroke-opacity="0.6"/>
+  <path d="M8 2l8 4" stroke-opacity="0.6"/>
+  <circle cx="12" cy="12" r="3" fill="currentColor" fill-opacity="0.3"/>
 </svg>
