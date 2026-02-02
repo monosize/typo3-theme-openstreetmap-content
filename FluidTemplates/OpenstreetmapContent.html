@@ -27,6 +27,7 @@
 					cycle: 'OpenCycleMap'
 				}" default="osm"/>
 				<flux:field.input name="aspectRatio" label="Seitenverhältnis (z.B. 16-9, 4-3, 3-2)" default="16-9" placeholder="16-9"/>
+				<flux:field.checkbox name="grayscale" label="Graustufen Anzeige" default="0"/>
 			</flux:form.sheet>
 
 			<!-- Routen-Link Sheet -->
@@ -74,7 +75,8 @@
 			 data-openstreetmap-content-lat-value="{lat}"
 			 data-openstreetmap-content-lng-value="{lng}"
 			 data-openstreetmap-content-zoom-value="{zoom}"
-			 data-openstreetmap-content-tile-layer-value="{tileLayer}">
+			 data-openstreetmap-content-tile-layer-value="{tileLayer}"
+			 data-openstreetmap-content-grayscale-value="{grayscale}">
 
 			<!-- Map Container -->
 			<div class="content-openstreet-map__map" data-openstreetmap-content-target="map"></div>

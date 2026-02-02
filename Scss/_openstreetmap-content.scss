@@ -79,6 +79,9 @@
 	// Aspect Ratio Support (wird via inline-style gesetzt)
 	// In Template: aspect-ratio: 16/9;
 
+	// Grayscale Support (wird via JavaScript auf mapPane angewendet)
+	// In Controller: mapPane.style.filter = 'grayscale(100%)'
+
 	&__map {
 		position: absolute;
 		inset: 0;

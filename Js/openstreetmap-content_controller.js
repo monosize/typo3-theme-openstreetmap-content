@@ -20,6 +20,12 @@
  *      data-openstreetmap-content-tile-layer-value="osm_de">
  *   <div data-openstreetmap-content-target="map"></div>
  * </div>
+ *
+ * @example Grayscale Map
+ * <div data-controller="openstreetmap-content"
+ *      data-openstreetmap-content-grayscale-value="1">
+ *   <div data-openstreetmap-content-target="map"></div>
+ * </div>
  */
 import { Controller } from "@hotwired/stimulus"
 import L from "leaflet"
@@ -54,7 +60,8 @@ export default class extends Controller {
 		lat: { type: String, default: "51.505" },
 		lng: { type: String, default: "-0.09" },
 		zoom: { type: Number, default: 15 },
-		tileLayer: { type: String, default: "osm" }
+		tileLayer: { type: String, default: "osm" },
+		grayscale: { type: Boolean, default: false }
 	}
 
 	connect() {
@@ -104,6 +111,9 @@ export default class extends Controller {
 				maxZoom: tileConfig.maxZoom
 			}).addTo(this.mapInstance)
 
+			// Graustufen-Filter anwenden
+			this.applyGrayscale()
+
 			// Custom Marker mit inline SVG (zuverlässiger als Bilder)
 			const markerIcon = L.divIcon({
 				className: 'content-openstreet-map__marker',
@@ -135,6 +145,28 @@ export default class extends Controller {
 		} catch (error) {
 			console.error('OpenStreetMap initialization error:', error)
 			this.showError('Fehler beim Initialisieren der Karte')
+		}
+	}
+
+	/**
+	 * Wendet Graustufen-Filter auf die Karte an
+	 * Nur auf tilePane anwenden, damit Marker farbig bleibt
+	 */
+	applyGrayscale() {
+		const tilePane = this.mapInstance.getPane('tilePane')
+		if (!tilePane) return
+
+		if (this.grayscaleValue) {
+			tilePane.style.filter = 'grayscale(100%)'
+		} else {
+			tilePane.style.filter = ''
+		}
+	}
+
+	grayscaleValueChanged() {
+		// Wenn sich der Graustufen-Wert ändert, neu anwenden
+		if (this.mapInstance) {
+			this.applyGrayscale()
 		}
 	}
 
