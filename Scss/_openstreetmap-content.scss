@@ -72,6 +72,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	width: 100%;
 	background: var(--template-bg-light, #f5f5f5);
 	border-radius: var(--border-radius-md, 8px);
 	overflow: hidden;
@@ -131,6 +132,7 @@
 
 	// Route Link Button
 	&__route-link {
+		display: block;
 		width: 100%;
 		text-align: center;
 		padding: var(--space-xs, 0.5rem) var(--space-s, 1rem);
